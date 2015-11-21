@@ -1,0 +1,47 @@
+﻿<Window x:Class="PKSmash.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PKSmash"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525" Loaded="MainWindow_Loaded">
+    <DockPanel>
+			<Menu DockPanel.Dock="Top">
+				<MenuItem Header="_File">
+					<MenuItem Command="Open" Header="_Open" />
+				</MenuItem>
+	      <MenuItem Header="_Edit">
+		      <MenuItem Command="Undo" Header="_Undo" />
+			    <Separator />
+				  <MenuItem Command="Cut" />
+	        <MenuItem Command="Copy" />
+					<MenuItem Command="Paste" />
+					<MenuItem Command="Delete" />
+					<Separator />
+					<MenuItem Command="SelectAll" />
+				</MenuItem>
+				<MenuItem Header="_View">
+
+				</MenuItem>
+			</Menu>
+
+			<ToolBarTray DockPanel.Dock="Top">
+				<ToolBar Name="MyToolbar">
+					<Button Content="Open" Click="Button_Click" />
+					<CheckBox x:Name="autoUpdate" Content="Auto Update" VerticalAlignment="Bottom" Checked="autoUpdate_Checked" Unchecked="autoUpdate_Unchecked" />
+					<TextBox x:Name="msDelay" Height="22" Margin="0" TextWrapping="Wrap" Text="8" VerticalAlignment="Top" Width="120"/>
+        <Button x:Name="btnUpdate" Content="Update" Height="22" VerticalAlignment="Top" Width="75" Click="btnUpdate_Click"/>
+      </ToolBar>
+			</ToolBarTray>
+
+    <StatusBar DockPanel.Dock="Bottom">
+      <StatusBarItem>
+        <TextBlock x:Name="statusBar" />
+      </StatusBarItem>
+    </StatusBar>
+
+    <DataGrid x:Name="memDataGrid" AutoGenerateColumns="True" ItemsSource="{Binding}"  />
+		
+  </DockPanel>
+</Window>
