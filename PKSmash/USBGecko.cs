@@ -155,8 +155,8 @@ namespace PKSmash
 			//	return;
 			//}
 
-			// set read timeout to 5 seconds, write timeout to infinite
-			ftStatus = this.ftdiDevice.SetTimeouts(5000, 0);
+			// set read timeout to 1 seconds, write timeout to 1 second
+			ftStatus = this.ftdiDevice.SetTimeouts(1000, 1000);
 			if (ftStatus == FTDI.FT_STATUS.FT_OK)
 			{
 				Logger.Log("Set Timeouts to 5 seconds for reads and infinite for writes.");
@@ -362,6 +362,66 @@ namespace PKSmash
 
 			//Array.Reverse(response);
 			return response;
+		}
+
+		public void poke(uint address, uint length, uint data)
+		{
+			Logger.Log("called poke at address " + address.ToString("X") + " with length " + length.ToString() + " and data " + data + ".");
+			ftStatus = FTDI.FT_STATUS.FT_OK;
+
+			// reset connection
+			Initialize();
+
+			// get start and end address and put them in powerpc endianness.
+			ulong writeAddress = address;
+			ulong writeData = data;
+			ulong addressAndData = Tools.ReverseBytes((writeAddress << 32) + data);
+
+			// set necessary packets
+			byte[] response = new Byte[length];
+			byte[] ack = { 170 };
+			byte[] addressAndDataAsBytes = BitConverter.GetBytes(addressAndData);
+			byte[] cmdWrite = { 3 };
+			switch (length)
+			{
+				case 1:
+					cmdWrite[0] = 1;
+					break;
+				case 2:
+					cmdWrite[0] = 2;
+					break;
+				case 4:
+					cmdWrite[0] = 3;
+					break;
+				default:
+					return;
+			}
+			
+			// transmit writemem command to gecko.
+			ftStatus = ftdiWrite(cmdWrite, 1);
+			if (ftStatus == FTDI.FT_STATUS.FT_OK)
+			{
+				Logger.Log("writemem command sent to gecko successfully.");
+			}
+			else
+			{
+				Logger.Log("FAILED to send writemem command to gecko.");
+				return;
+			}
+			
+			// send address and data for the writemem command.
+			ftStatus = ftdiWrite(addressAndDataAsBytes, 8);
+			if (ftStatus == FTDI.FT_STATUS.FT_OK)
+			{
+				Logger.Log("Address and Data for readmem command sent to gecko successfully.");
+			}
+			else
+			{
+				Logger.Log("FAILED to send Address and Data for the readmem command.");
+				return;
+			}
+
+			return;
 		}
 	}
 }

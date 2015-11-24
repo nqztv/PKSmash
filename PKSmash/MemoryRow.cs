@@ -1,166 +1,173 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.ObjectModel;  // required for ObservableCollection.
+using System.ComponentModel;  // required for the INotifyPropertyChanged interface.
+using System.IO;  // required for File.
+using System.Linq;  // requred to run linq queries.
 
 namespace PKSmash
 {
-	public class MemoryRow : INotifyPropertyChanged
+	public class MemoryAddress : INotifyPropertyChanged
 	{
-		private string nameValue;
-		public string name
+		// declare private fields.
+		private string name;
+		private string type;
+		private string address;
+		private string offset;
+		private uint length;
+		private string hexResult;
+		private string convertedResult;
+		private string desiredResult;
+		private long timeCost;
+		private bool doPeek;
+		private bool doPoke;
+
+		// declare public properties to expose the private fields with accessors.
+		public string Name
 		{
-			get { return nameValue; }
+			get { return name; }
 			set
 			{
-				if (value != nameValue)
+				if (name != value)
 				{
-					nameValue = value;
+					name = value;
 					OnPropertyChanged("name");
 				}
 			}
 		}
 
-		private string addressValue;
-		public string address
+		public string Type
 		{
-			get { return addressValue; }
+			get { return type; }
 			set
 			{
-				if (value != addressValue)
+				if (type != value)
 				{
-					addressValue = value;
-					OnPropertyChanged("address");
-				}
-			}
-		}
-
-		private bool isPointerValue;
-		public bool isPointer
-		{
-			get { return isPointerValue; }
-			set
-			{
-				if (value != isPointerValue)
-				{
-					isPointerValue = value;
-					OnPropertyChanged("isPointer");
-				}
-			}
-		}
-
-		private string offsetValue;
-		public string offset
-		{
-			get { return offsetValue; }
-			set
-			{
-				if (value != offsetValue)
-				{
-					offsetValue = value;
-					OnPropertyChanged("offset");
-				}
-			}
-		}
-
-		private uint lengthValue;
-		public uint length
-		{
-			get { return lengthValue; }
-			set
-			{
-				if (value != lengthValue)
-				{
-					lengthValue = value;
-					OnPropertyChanged("length");
-				}
-			}
-		}
-
-		private string resultValue;
-		public string result
-		{
-			get { return resultValue; }
-			set
-			{
-				if (value != resultValue)
-				{
-					resultValue = value;
-					OnPropertyChanged("result");
-				}
-			}
-		}
-
-		private string typeValue;
-		public string type
-		{
-			get { return typeValue; }
-			set
-			{
-				if (value != typeValue)
-				{
-					typeValue = value;
+					type = value;
 					OnPropertyChanged("type");
 				}
 			}
 		}
 
-		private string interpretationValue;
-		public string interpretation
+		public string Address
 		{
-			get { return interpretationValue; }
+			get { return address; }
 			set
 			{
-				if (value != interpretationValue)
+				if (address != value)
 				{
-					interpretationValue = value;
-					OnPropertyChanged("interpretation");
+					address = value;
+					OnPropertyChanged("address");
 				}
 			}
 		}
 
-		private long timeCostValue;
-		public long timeCost
+		public string Offset
 		{
-			get { return timeCostValue; }
+			get { return offset; }
 			set
 			{
-				if (value != timeCostValue)
+				if (offset != value)
 				{
-					timeCostValue = value;
+					offset = value;
+					OnPropertyChanged("offset");
+				}
+			}
+		}
+
+		public uint Length
+		{
+			get { return length; }
+			set
+			{
+				if (length != value)
+				{
+					length = value;
+					OnPropertyChanged("length");
+				}
+			}
+		}
+
+		public string HexResult
+		{
+			get { return hexResult; }
+			set
+			{
+				if (hexResult != value)
+				{
+					hexResult = value;
+					OnPropertyChanged("hexResult");
+				}
+			}
+		}
+
+		public string ConvertedResult
+		{
+			get { return convertedResult; }
+			set
+			{
+				if (convertedResult != value)
+				{
+					convertedResult = value;
+					OnPropertyChanged("convertedResult");
+				}
+			}
+		}
+
+		public string DesiredResult
+		{
+			get { return desiredResult; }
+			set
+			{
+				if (desiredResult != value)
+				{
+					desiredResult = value;
+					OnPropertyChanged("desiredResult");
+				}
+			}
+		}
+
+		public long TimeCost
+		{
+			get { return timeCost; }
+			set
+			{
+				if (timeCost != value)
+				{
+					timeCost = value;
 					OnPropertyChanged("timeCost");
 				}
 			}
 		}
 
-		private bool autoUpdateValue;
-		public bool autoUpdate
+		public bool DoPeek
 		{
-			get { return autoUpdateValue; }
+			get { return doPeek; }
 			set
 			{
-				if (value != autoUpdateValue)
+				if (doPeek != value)
 				{
-					autoUpdateValue = value;
-					OnPropertyChanged("autoUpdate");
+					doPeek = value;
+					OnPropertyChanged("doPeek");
 				}
 			}
 		}
-		/*
-		public MemoryRow(string n, string a, bool iP, string o, int l)
+
+		public bool DoPoke
 		{
-			this.name = n;
-			this.address = a;
-			this.isPointer = iP;
-			this.offset = o;
-			this.length = l;
-			this.result = "0";
-			this.timeCost = 0;
-			this.autoUpdate = true;
+			get { return doPoke; }
+			set
+			{
+				if (doPoke != value)
+				{
+					doPoke = value;
+					OnPropertyChanged("doPoke");
+				}
+			}
 		}
-		*/
+
+		// declare an event for when a private field changes.
 		public event PropertyChangedEventHandler PropertyChanged;
 
+		// declare a method to raise an event when a private field changes.
 		private void OnPropertyChanged(string propertyName)
 		{
 			if (PropertyChanged != null)
@@ -170,34 +177,35 @@ namespace PKSmash
 		}
 	}
 
-
-	public static class MemoryRowService
+	public static class MemoryAddressService
 	{
-		public static ObservableCollection<MemoryRow> ReadFile(string filePath)
+		public static ObservableCollection<MemoryAddress> CollectFromCSV(string filePath)
 		{
-			var lines = File.ReadAllLines(filePath);
+			// grab each row from a csv file.
+			string[] rows = File.ReadAllLines(filePath);
 
-			var data = from l in lines.Skip(1)
-								 let split = l.Split(',')
-								 select new MemoryRow
+			// convert each row to a MemoryAddress object.
+			var data = from row in rows.Skip(1)
+								 let column = row.Split(',')
+								 select new MemoryAddress
 								 {
-									 name = split[0],
-									 address = split[1],
-									 isPointer = bool.Parse(split[2]),
-									 offset = split[3],
-									 length = uint.Parse(split[4]),
-									 result = split[5],
-									 type = split[6],
-									 interpretation = split[7],
-									 timeCost = long.Parse(split[8]),
-									 autoUpdate = bool.Parse(split[9])
+									 Name = column[0],
+									 Type = column[1],
+									 Address = column[2],
+									 Offset = column[3],
+									 Length = uint.Parse(column[4]),
+									 HexResult = column[5],
+									 ConvertedResult = column[6],
+									 DesiredResult = column[7],
+									 TimeCost = long.Parse(column[8]),
+									 DoPeek = bool.Parse(column[9]),
+									 DoPoke = bool.Parse(column[10])
 								 };
 
-			var oc = new ObservableCollection<MemoryRow>();
-			foreach (var row in data)
-			{
-				oc.Add(row);
-			}
+			// convert linq query to an ObservableCollection.
+			ObservableCollection<MemoryAddress> oc = new ObservableCollection<MemoryAddress>(data);
+
+			// return the ObservableCollection.
 			return oc;
 		}
 	}

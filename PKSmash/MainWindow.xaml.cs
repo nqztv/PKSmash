@@ -1,180 +1,254 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;  // required for ObservableCollection.
+using System.Diagnostics;  // required for Stopwatch.
+using System.IO;  // required for File.
+using System.Threading;  //required for polling.
+using System.Threading.Tasks;  // required for polling.
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using FTD2XX_NET;
-using Microsoft.Win32;
-using System.Xml.Linq;
-using Newtonsoft.Json;
-using System.IO;
+using Microsoft.Win32;  // required for file dialogs.
+using Newtonsoft.Json;  // required for json handling.
 
 namespace PKSmash
 {
 	public partial class MainWindow : Window
 	{
 		USBGecko gecko = new USBGecko();
-		ObservableCollection<MemoryRow> MemoryRows;
+		ObservableCollection<MemoryAddress> memoryAddresses;
 		CancellationTokenSource cancellationTokenSource;
-		string outputJSON;
+		string inputCSV = @"input.csv";
+		string outputJSON = @"memdump.json";
 		
 		public MainWindow()
 		{
 			InitializeComponent();
 		}
 
-		private string interpretResult(byte[] input, string type)
+		private void OpenInput()
 		{
-			string interpretation = "";
+			// create OpenFileDialog.
+			OpenFileDialog dlg = new OpenFileDialog();
 
-			switch (type)
+			// set filter for file extension and default file extension to show only csv files.
+			dlg.DefaultExt = ".csv";
+			dlg.Filter = "CSV Files (*.csv)|*.csv";
+
+			// display OpenFileDialog.
+			Nullable<bool> result = dlg.ShowDialog();
+
+			// check if user selected a file. 
+			if (result == true)
 			{
-				case "float":
-					interpretation = BitConverter.ToSingle(input, 0).ToString();
-					break;
-				case "uint":
-					interpretation = BitConverter.ToUInt32(input, 0).ToString();
-					break;
-				default:
-					interpretation = BitConverter.ToString(input).Replace("-", "");
-					break;
-			}
-
-			return interpretation;
+				// update components.
+				inputCSV = dlg.FileName;
+				memoryAddresses = MemoryAddressService.CollectFromCSV(inputCSV);
+				dbgMemoryAddresses.ItemsSource = memoryAddresses;
+				txtStatus.Text = inputCSV + " opened as input.";
+      }
 		}
 
-		private void getCurrentMemoryValues()
+		private void SetOutput()
 		{
+			// create SaveFileDialog.
+			SaveFileDialog dlg = new SaveFileDialog();
+
+			// set filter for file extension and default file extension to show only json files.
+			dlg.DefaultExt = ".json";
+			dlg.Filter = "JSON Files (*.json)|*.json";
+
+			// display SaveFileDialog.
+			Nullable<bool> result = dlg.ShowDialog();
+
+			// check if user selected a file. 
+			if (result == true)
+			{
+				// update components.
+				outputJSON = dlg.FileName;
+				txtStatus.Text = outputJSON + " set as output.";
+			}
+		}
+
+		private void GetCurrentMemory()
+		{
+			// declare output for json.
 			Dictionary<string, string> output = new Dictionary<string, string>();
 
-			foreach (MemoryRow row in MemoryRows)
+			// cycle through each MemoryAddress in collection.
+			foreach (MemoryAddress address in memoryAddresses)
 			{
-				if (!row.autoUpdate)
+				// skip current address if not checked to peek.
+				if (!address.DoPeek)
 				{
 					continue;
 				}
 
+				// start timer to determing time cost.
 				Stopwatch watch = new Stopwatch();
 				watch.Start();
 
+				// try to peek the current address.
 				try
 				{
-					uint addressAsUInt = Convert.ToUInt32(row.address, 16);
-					byte[] response = gecko.peek(addressAsUInt, row.length);
+					uint addressAsUInt = Convert.ToUInt32(address.Address, 16);
+					byte[] response;
 
-					if (row.isPointer)
+          if (address.Offset == "")
 					{
+						response = gecko.peek(addressAsUInt, address.Length);
+					}
+					else
+					{
+						response = gecko.peek(addressAsUInt, 4);
 						Array.Reverse(response);
 						addressAsUInt = BitConverter.ToUInt32(response, 0);
+						addressAsUInt += Convert.ToUInt32(address.Offset, 16);
+						response = gecko.peek(addressAsUInt, address.Length);
 					}
 
-					if (row.offset != "0")
-					{
-						addressAsUInt += Convert.ToUInt32(row.offset, 16);
-						response = gecko.peek(addressAsUInt, row.length);
-					}
-
-					row.result = BitConverter.ToString(response).Replace("-", "");
-					row.interpretation = interpretResult(response, row.type);
+					address.HexResult = BitConverter.ToString(response).Replace("-", "");
+					address.ConvertedResult = Tools.ConvertResult(response, address.Type);
 				}
 				catch (Exception)
 				{
-					row.result = "ERROR";
+					address.HexResult = "UNABLE TO PEEK!";
 				}
 
-				output.Add(row.name, row.interpretation);
-
+				// stop timer and update time cost.
 				watch.Stop();
+				address.TimeCost = watch.ElapsedMilliseconds;
 
-				row.timeCost = watch.ElapsedMilliseconds;
+				// add result to output json.
+				output.Add(address.Name, address.ConvertedResult);
 			}
 
-			File.WriteAllText(@"memdump.json", JsonConvert.SerializeObject(output, Formatting.Indented));
+			// write json to file.
+			File.WriteAllText(outputJSON, JsonConvert.SerializeObject(output, Formatting.Indented));
 		}
 
+		private void SetCurrentMemory()
+		{
+			// cycle through each MemoryAddress in collection.
+			foreach (MemoryAddress address in memoryAddresses)
+			{
+				// skip current address if not checked to peek.
+				if (!address.DoPoke)
+				{
+					continue;
+				}
+
+				// skip current address if not acceptable length.
+				if (address.Length != 1 && address.Length != 2 && address.Length != 4)
+				{
+					txtStatus.Text = "poke length must be 1, 2, or 4.";
+					continue;
+				}
+
+				// start timer to determing time cost.
+				Stopwatch watch = new Stopwatch();
+				watch.Start();
+
+				// try to poke the current address.
+				try
+				{
+					uint addressAsUInt = Convert.ToUInt32(address.Address, 16);
+					uint dataAsUint = Convert.ToUInt32(address.DesiredResult, 16);
+					byte[] response;
+
+					if (address.Offset == "")
+					{
+						gecko.poke(addressAsUInt, address.Length, dataAsUint);
+					}
+					else
+					{
+						response = gecko.peek(addressAsUInt, 4);
+						Array.Reverse(response);
+						addressAsUInt = BitConverter.ToUInt32(response, 0);
+						addressAsUInt += Convert.ToUInt32(address.Offset, 16);
+						gecko.poke(addressAsUInt, address.Length, dataAsUint);
+					}
+				}
+				catch (Exception)
+				{
+					address.HexResult = "UNABLE TO POKE!";
+				}
+
+				// stop timer and update time cost.
+				watch.Stop();
+				address.TimeCost = watch.ElapsedMilliseconds;
+			}
+		}
 
 		private void MainWindow_Loaded(object sender, RoutedEventArgs e)
 		{
-			MemoryRows = MemoryRowService.ReadFile("input.csv");
-			this.DataContext = MemoryRows;
+			Logger.Init();
 
+			// set DataContext.
+			this.DataContext = memoryAddresses;
+
+			// set datagrid if default input file exists.
+			if (File.Exists(inputCSV))
+			{
+				memoryAddresses = MemoryAddressService.CollectFromCSV(inputCSV);
+				dbgMemoryAddresses.ItemsSource = memoryAddresses;
+			}
+
+			// connect usb gecko.
 			gecko.Connect();
 		}
 
-		private void Button_Click(object sender, RoutedEventArgs e)
+		private void OpenInput_Click(object sender, RoutedEventArgs e)
 		{
-			// Create OpenFileDialog 
-			OpenFileDialog dlg = new OpenFileDialog();
-
-			// Set filter for file extension and default file extension 
-			dlg.DefaultExt = ".csv";
-			dlg.Filter = "CSV Files (*.csv)|*.csv";
-
-			// Display OpenFileDialog by calling ShowDialog method 
-			Nullable<bool> result = dlg.ShowDialog();
-
-
-			// Get the selected file name and display in a TextBox 
-			if (result == true)
-			{
-				// Open document 
-				string filename = dlg.FileName;
-				statusBar.Text = filename;
-				MemoryRows = MemoryRowService.ReadFile(filename);
-				memDataGrid.ItemsSource = MemoryRows;
-			}
+			OpenInput();
 		}
 
-		private void autoUpdate_Checked(object sender, RoutedEventArgs e)
+		private void SetOutput_Click(object sender, RoutedEventArgs e)
 		{
+			SetOutput();
+		}
+
+		private void Peek_Click(object sender, RoutedEventArgs e)
+		{
+			GetCurrentMemory();
+		}
+
+		private void Poke_Click(object sender, RoutedEventArgs e)
+		{
+			SetCurrentMemory();
+		}
+
+		private void AutoPeek_Checked(object sender, RoutedEventArgs e)
+		{
+			// get delay.
 			int delay = 0;
 
-			if (!int.TryParse(msDelay.Text, out delay))
+			if (!int.TryParse(txtDelay.Text, out delay))
 			{
 				return;
 			}
 
+			// set cancellation token for task.
 			cancellationTokenSource = new CancellationTokenSource();
 			var token = cancellationTokenSource.Token;
 
+			// start task to repeatedly peek.
 			var listener = Task.Factory.StartNew( () =>
 			{
 				while (true)
 				{
-					getCurrentMemoryValues();
+					GetCurrentMemory();
 					Thread.Sleep(delay);
-					if (token.IsCancellationRequested)
-					{
-						break;
-					}
+					if (token.IsCancellationRequested) { break; }
 				}
 			}, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 		}
 
-		private void autoUpdate_Unchecked(object sender, RoutedEventArgs e)
+		private void AutoPeek_Unchecked(object sender, RoutedEventArgs e)
 		{
+			// cancel task to repeatedly poke.
 			if (cancellationTokenSource != null)
 			{
 				cancellationTokenSource.Cancel();
 			}
-		}
-
-		private void btnUpdate_Click(object sender, RoutedEventArgs e)
-		{
-			getCurrentMemoryValues();
 		}
 	}
 }
