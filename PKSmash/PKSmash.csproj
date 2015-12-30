@@ -116,8 +116,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="CommandPeek.cs" />
-    <Compile Include="Model.cs" />
     <Compile Include="ShellViewModel.cs" />
     <Compile Include="StreamControlView.xaml.cs">
       <DependentUpon>StreamControlView.xaml</DependentUpon>
@@ -127,7 +125,6 @@
     <Compile Include="UpdateEvent.cs" />
     <Compile Include="USBGecko.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="ViewModel.cs" />
     <Page Include="ShellView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

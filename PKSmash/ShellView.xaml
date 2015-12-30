@@ -25,6 +25,11 @@
 		</Menu>
 		<ToolBarTray DockPanel.Dock="Top">
 			<ToolBar>
+				<Button Content="Stream Control" Command="{Binding NavigateCommand}" CommandParameter="StreamControl" />
+				<Separator />
+				<Button Content="Smash Data" Command="{Binding NavigateCommand}" CommandParameter="SmashData" />
+			</ToolBar>
+			<ToolBar>
 				<Button Content="Open Input" Command="{Binding Path=OpenCommand}" />
 				<Separator />
 				<Button Content="Set Output" Command="{Binding Path=SaveCommand}" />
