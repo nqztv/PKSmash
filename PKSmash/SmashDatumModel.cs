@@ -1,12 +1,13 @@
 ﻿using Prism.Mvvm;
-using System.Collections.ObjectModel;  // required for ObservableCollection.
-using System.ComponentModel;  // required for the INotifyPropertyChanged interface.
-using System.IO;  // required for File.
-using System.Linq;  // requred to run linq queries.
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace PKSmash
 {
-	public class MemoryAddress : BindableBase
+	public class SmashDatum : BindableBase
 	{
 		// declare private fields.
 		private string name;
@@ -22,12 +23,12 @@ namespace PKSmash
 		private bool doPoke;
 
 		// constructor
-		//public MemoryAddress(string name, string type, string address, string offset, uint length, string hexResult, string convertedResult, string desiredResult, long timeCost, bool doPeek, bool doPoke)
+		//public SmashDatum(string name, string type, string address, string offset, uint length, string hexResult, string convertedResult, string desiredResult, long timeCost, bool doPeek, bool doPoke)
 		//{
 		//	this.name = name;
 		//	this.type = type;
 		//	this.address = address;
- 		//	this.offset = offset;
+		//	this.offset = offset;
 		//	this.length = length;
 		//	this.hexResult = hexResult;
 		//	this.convertedResult = convertedResult;
@@ -47,9 +48,9 @@ namespace PKSmash
 		public string Type
 		{
 			get { return this.type; }
-			set	{	SetProperty(ref this.type, value); }
+			set { SetProperty(ref this.type, value); }
 		}
-		
+
 		public string Address
 		{
 			get { return this.address; }
@@ -102,39 +103,6 @@ namespace PKSmash
 		{
 			get { return this.doPoke; }
 			set { SetProperty(ref this.doPoke, value); }
-		}
-	}
-
-	public static class MemoryAddressService
-	{
-		public static ObservableCollection<MemoryAddress> CollectFromCSV(string filePath)
-		{
-			// grab each row from a csv file.
-			string[] rows = File.ReadAllLines(filePath);
-
-			// convert each row to a MemoryAddress object.
-			var data = from row in rows.Skip(1)
-								 let column = row.Split(',')
-								 select new MemoryAddress
-								 {
-									 Name = column[0],
-									 Type = column[1],
-									 Address = column[2],
-									 Offset = column[3],
-									 Length = uint.Parse(column[4]),
-									 HexResult = column[5],
-									 ConvertedResult = column[6],
-									 DesiredResult = column[7],
-									 TimeCost = long.Parse(column[8]),
-									 DoPeek = bool.Parse(column[9]),
-									 DoPoke = bool.Parse(column[10])
-								 };
-
-			// convert linq query to an ObservableCollection.
-			ObservableCollection<MemoryAddress> oc = new ObservableCollection<MemoryAddress>(data);
-
-			// return the ObservableCollection.
-			return oc;
 		}
 	}
 }

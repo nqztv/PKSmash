@@ -290,7 +290,7 @@ namespace PKSmash
 			// get start and end address and put them in powerpc endianness.
 			ulong startAddress = address;
 			ulong endAddress = address + length;
-			ulong memRange = Tools.ReverseBytes((startAddress << 32) + endAddress);
+			ulong memRange = Utils.ReverseBytes((startAddress << 32) + endAddress);
 
 			// set necessary packets
 			byte[] cmdRead = { 4 };
@@ -375,7 +375,7 @@ namespace PKSmash
 			// get start and end address and put them in powerpc endianness.
 			ulong writeAddress = address;
 			ulong writeData = data;
-			ulong addressAndData = Tools.ReverseBytes((writeAddress << 32) + data);
+			ulong addressAndData = Utils.ReverseBytes((writeAddress << 32) + data);
 
 			// set necessary packets
 			byte[] response = new Byte[length];

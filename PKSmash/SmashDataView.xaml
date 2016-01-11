@@ -1,0 +1,77 @@
+﻿<UserControl x:Class="PKSmash.SmashDataView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PKSmash"
+             xmlns:prism="http://prismlibrary.com/"
+						 prism:ViewModelLocator.AutoWireViewModel="True"
+						 xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             mc:Ignorable="d">
+	<Viewbox>
+		<Grid>
+			<Button 
+				Content="Peek" 
+				Command="{Binding Path=PeekCommand}" 
+				HorizontalAlignment="Left" 
+				VerticalAlignment="Top" 
+				Margin="10,10,0,0" 
+				Width="40" />
+			<Button 
+				Content="Poke" 
+				Command="{Binding Path=PokeCommand}" 
+				HorizontalAlignment="Left" 
+				VerticalAlignment="Top" 
+				Margin="10,37,0,0" 
+				Width="40" />
+			<CheckBox 
+				IsChecked="{Binding Path=AutoPeek}"
+				Content="Auto-Peek"
+				HorizontalAlignment="Left" 
+				VerticalAlignment="Top" 
+				Margin="55,13,0,0" />
+			<xctk:IntegerUpDown 
+				FormatString="N0" 
+				Value="{Binding Path=Delay, UpdateSourceTrigger=PropertyChanged}" 
+				Increment="1" 
+				Minimum="0" 
+				Maximum="9999" 
+				HorizontalAlignment="Left" 
+				VerticalAlignment="Top" 
+				Margin="55,37,0,0" 
+				Height="22" 
+				Width="73" />
+			<Button 
+				Content="Open Input" 
+				Command="{Binding Path=OpenInputCommand}" 
+				HorizontalAlignment="Left" 
+				VerticalAlignment="Top" 
+				Margin="133,10,0,0" 
+				Width="100" />
+			<Button 
+				Content="Save Output" 
+				Command="{Binding Path=SaveOutputCommand}"
+				HorizontalAlignment="Left" 
+				VerticalAlignment="Top" 
+				Margin="133,37,0,0" 
+				Width="100" />
+			<Label 
+				Content="{Binding Path=InputFile}"
+				HorizontalAlignment="Left" 
+				VerticalAlignment="Top" 
+				Margin="238,8,10,0" />
+			<Label 
+				Content="{Binding Path=OutputFile}"
+				HorizontalAlignment="Left" 
+				VerticalAlignment="Top" 
+				Margin="238,35,10,0" />
+			<DataGrid 
+				ItemsSource="{Binding Path=Data}"
+				HorizontalAlignment="Left" 
+				VerticalAlignment="Top" 
+				Margin="10,64,10,10" 
+				Height="380"
+				Width="620"/>
+		</Grid>
+	</Viewbox>
+</UserControl>

@@ -107,17 +107,17 @@ namespace PKSmash
 			}
 		}
 
-		private int player1Character = 0;
+		private string player1Character;
 
-		public int Player1Character
+		public string Player1Character
 		{
 			get { return this.player1Character; }
 			set { SetProperty(ref this.player1Character, value); }
 		}
 
-		private int player2Character = 0;
+		private string player2Character;
 
-		public int Player2Character
+		public string Player2Character
 		{
 			get { return this.player2Character; }
 			set { SetProperty(ref this.player2Character, value); }
@@ -125,13 +125,118 @@ namespace PKSmash
 
 		public StreamControlViewModel(IEventAggregator eventAggregator)
 		{
-			this.eventAggregator = eventAggregator;
-			this.UpdateCommand = new DelegateCommand(this.OnUpdate, this.CanUpdate).ObservesProperty(() => Player1Name);
+			//this.eventAggregator = eventAggregator;
+			//this.UpdateCommand = new DelegateCommand(this.OnUpdate, this.CanUpdate).ObservesProperty(() => Player1Name);
 			this.ResetScoresCommand = new DelegateCommand(this.OnResetScores, this.CanResetScores).ObservesProperty(() => Player1Score).ObservesProperty(() => Player2Score);
 			this.SwapPlayersCommand = new DelegateCommand(this.OnSwapPlayers, this.CanSwapPlayers);
+
+			eventAggregator.GetEvent<WinEvent>().Subscribe(UpdateWinnerScore, ThreadOption.UIThread);
+			eventAggregator.GetEvent<P1CharacterChangeEvent>().Subscribe(OnP1CharacterChange, ThreadOption.UIThread);
+			eventAggregator.GetEvent<P2CharacterChangeEvent>().Subscribe(OnP2CharacterChange, ThreadOption.UIThread);
+			eventAggregator.GetEvent<P3CharacterChangeEvent>().Subscribe(OnP3CharacterChange, ThreadOption.UIThread);
+			eventAggregator.GetEvent<P4CharacterChangeEvent>().Subscribe(OnP4CharacterChange, ThreadOption.UIThread);
 		}
 
-		private IEventAggregator eventAggregator;
+		private void OnP1CharacterChange (string character)
+		{
+			if (Player1Port == Port.Port1)
+			{
+				Player1Character = character;
+			}
+
+			if (Player2Port == Port.Port1)
+			{
+				Player2Character = character;
+			}
+		}
+
+		private void OnP2CharacterChange(string character)
+		{
+			if (Player1Port == Port.Port2)
+			{
+				Player1Character = character;
+			}
+
+			if (Player2Port == Port.Port2)
+			{
+				Player2Character = character;
+			}
+		}
+
+		private void OnP3CharacterChange(string character)
+		{
+			if (Player1Port == Port.Port3)
+			{
+				Player1Character = character;
+			}
+
+			if (Player2Port == Port.Port3)
+			{
+				Player2Character = character;
+			}
+		}
+
+		private void OnP4CharacterChange(string character)
+		{
+			if (Player1Port == Port.Port4)
+			{
+				Player1Character = character;
+			}
+
+			if (Player2Port == Port.Port4)
+			{
+				Player2Character = character;
+			}
+		}
+
+		private void UpdateWinnerScore(string winner)
+    {
+			switch (winner)
+			{
+				case "00":
+					if (Player1Port == Port.Port1)
+					{
+						Player1Score += 1;
+					}
+					if (Player2Port == Port.Port1)
+					{
+						Player2Score += 1;
+					}
+					break;
+				case "01":
+					if (Player1Port == Port.Port2)
+					{
+						Player1Score += 1;
+					}
+					if (Player2Port == Port.Port2)
+					{
+						Player2Score += 1;
+					}
+					break;
+				case "02":
+					if (Player1Port == Port.Port3)
+					{
+						Player1Score += 1;
+					}
+					if (Player2Port == Port.Port3)
+					{
+						Player2Score += 1;
+					}
+					break;
+				case "03":
+					if (Player1Port == Port.Port4)
+					{
+						Player1Score += 1;
+					}
+					if (Player2Port == Port.Port4)
+					{
+						Player2Score += 1;
+					}
+					break;
+			}
+		}
+
+		//private IEventAggregator eventAggregator;
 
 		public ICommand UpdateCommand { get; private set; }
 
@@ -139,7 +244,7 @@ namespace PKSmash
 		{
 			Player1Port += 1;
 
-			this.eventAggregator.GetEvent<UpdateEvent>().Publish(Player1Port.ToString());
+			//this.eventAggregator.GetEvent<UpdateEvent>().Publish(Player1Port.ToString());
 		}
 
 		private bool CanUpdate()

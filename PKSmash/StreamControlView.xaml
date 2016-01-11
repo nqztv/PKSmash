@@ -66,7 +66,7 @@
 				Margin="282,65,0,0" 
 				Width="100" BorderThickness="0" />
 
-			<ComboBox IsEditable="True" x:Name="comboBox" HorizontalAlignment="Left" Margin="10,135.84,0,0" VerticalAlignment="Top" Width="179">
+			<ComboBox Text="{Binding Path=Player1Character}" IsEditable="True" x:Name="comboBox" HorizontalAlignment="Left" Margin="10,135.84,0,0" VerticalAlignment="Top" Width="179">
 				<ComboBoxItem>Mr. Game &amp; Watch</ComboBoxItem>
 				<ComboBoxItem>Mario</ComboBoxItem>
 				<ComboBoxItem>Luigi</ComboBoxItem>
@@ -77,7 +77,7 @@
 				<ComboBoxItem>Luigi</ComboBoxItem>
 			</ComboBox>
 
-			<ComboBox IsEditable="True"  HorizontalAlignment="Left" Margin="282,135.84,0,0" VerticalAlignment="Top" Width="179">
+			<ComboBox Text="{Binding Path=Player2Character}"  IsEditable="True"  HorizontalAlignment="Left" Margin="282,135.84,0,0" VerticalAlignment="Top" Width="179">
 				<ComboBoxItem>Yellow White</ComboBoxItem>
 				<ComboBoxItem>Black</ComboBoxItem>
 				<ComboBoxItem>Luigi</ComboBoxItem>
@@ -88,9 +88,9 @@
 				<ComboBoxItem>Luigi</ComboBoxItem>
 			</ComboBox>
 
-			<CheckBox  Content="Increment score when a player wins a game" HorizontalAlignment="Left" Margin="10,189.76,0,0" VerticalAlignment="Top"/>
-			<CheckBox  Content="Decrement score when a player loses a stock" HorizontalAlignment="Left" Margin="10,210.72,0,0" VerticalAlignment="Top"/>
-			<CheckBox  Content="Automatically get character selection" HorizontalAlignment="Left" Margin="10,231.68,0,10" VerticalAlignment="Top"/>
+			<CheckBox Content="Increment score when a player wins a game" HorizontalAlignment="Left" Margin="10,189.76,0,0" VerticalAlignment="Top"/>
+			<CheckBox Content="Decrement score when a player loses a stock" HorizontalAlignment="Left" Margin="10,210.72,0,0" VerticalAlignment="Top"/>
+			<CheckBox Content="Automatically get character selection" HorizontalAlignment="Left" Margin="10,231.68,0,10" VerticalAlignment="Top"/>
 
 		</Grid>
 	</Viewbox>

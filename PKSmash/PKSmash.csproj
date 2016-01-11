@@ -72,6 +72,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -116,15 +118,24 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="P1CharacterChangeEvent.cs" />
+    <Compile Include="P2CharacterChangeEvent.cs" />
+    <Compile Include="P3CharacterChangeEvent.cs" />
+    <Compile Include="P4CharacterChangeEvent.cs" />
     <Compile Include="ShellViewModel.cs" />
+    <Compile Include="SmashDataView.xaml.cs">
+      <DependentUpon>SmashDataView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SmashDataViewModel.cs" />
+    <Compile Include="SmashDatumModel.cs" />
     <Compile Include="StreamControlView.xaml.cs">
       <DependentUpon>StreamControlView.xaml</DependentUpon>
     </Compile>
     <Compile Include="StreamControlViewModel.cs" />
-    <Compile Include="Tools.cs" />
     <Compile Include="UpdateEvent.cs" />
     <Compile Include="USBGecko.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="WinEvent.cs" />
     <Page Include="ShellView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -138,13 +149,16 @@
       <DependentUpon>ShellView.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="SmashDataView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="StreamControlView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MemoryAddress.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

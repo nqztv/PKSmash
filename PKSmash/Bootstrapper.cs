@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.Practices.Unity;
 
 namespace PKSmash
 {
@@ -28,7 +29,7 @@ namespace PKSmash
 			//Container.RegisterType(typeof(object), typeof(GeckoCommandsView), "GeckoCommands");
 
 			Container.RegisterTypeForNavigation<StreamControlView>("StreamControl");
-			//Container.RegisterTypeForNavigation<VCPView>("VCP");
+			Container.RegisterTypeForNavigation<SmashDataView>("SmashData");
 			//Container.RegisterTypeForNavigation<GeckoCommandsView>("GeckoCommands");
 		}
 	}
